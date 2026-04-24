@@ -1,6 +1,4 @@
 from spatial_object import SpatialObject
-from parcel import Parcel
-from household import Household
 
 class Building(SpatialObject):
     """
@@ -14,7 +12,7 @@ class Building(SpatialObject):
     - may contain multiple households
     """
 
-    def __init__(self, building_id: str, geometry: dict, height: float, usage: str, parcel: Parcel = None):
+    def __init__(self, building_id: str, geometry: dict, height: float, usage: str, parcel=None):
         super().__init__(geometry)
         self.building_id = building_id
         self.height = height
@@ -28,11 +26,11 @@ class Building(SpatialObject):
     def get_height(self):
         return self.height
     
-    def assign_parcel(self, parcel: Parcel):
+    def assign_parcel(self, parcel):
         self.parcel = parcel
         self.parcel.add_building(self)
 
-    def add_household(self, household: Household):
+    def add_household(self, household):
         if household not in self.households:
             self.households.append(household)
     
