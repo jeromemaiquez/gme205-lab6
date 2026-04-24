@@ -37,6 +37,7 @@ parcel2 = Parcel(**parcel2_data)
 # print(parcel1.distance_to(parcel2))
 # print(parcel1.intersects(parcel2, threshold=0.5))
 # print(parcel1.compute_area())
+print(parcel2.describe())
 
 # Test for Road
 
@@ -69,7 +70,8 @@ road2.add_adjacent_parcel(parcel1)
 
 # print(parcel1.adjacent_roads)
 # print(road1.adjacent_parcels)
-# print(parcel1)
+print(road1.get_length())
+print(road2.describe())
 
 # Test for Building
 
@@ -101,3 +103,5 @@ parcel1.add_building(parcel2)
 
 print(parcel1.buildings)
 print(building1.parcel)
+print(building2.get_height())
+print(building2.describe())
