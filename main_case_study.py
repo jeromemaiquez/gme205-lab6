@@ -36,3 +36,4 @@ parcel2 = Parcel(**parcel2_data)
 
 print(parcel1.distance_to(parcel2))
 print(parcel1.intersects(parcel2, threshold=0.5))
+print(parcel1.compute_area())
