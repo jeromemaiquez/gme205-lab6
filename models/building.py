@@ -41,3 +41,6 @@ class Building(SpatialObject):
             f"height={self.height}, parcel={parcel_text}, "
             f"households={len(self.households)}" 
         )
+    
+    def __str__(self):
+        return self.building_id

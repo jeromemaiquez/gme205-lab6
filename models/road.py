@@ -25,7 +25,6 @@ class Road(SpatialObject):
         if parcel not in self.adjacent_parcels:
             parcel.add_adjacent_road(self)
             self.adjacent_parcels.append(parcel)
-            
     
     def describe(self):
         parcel_ids = [p.parcel_id for p in self.adjacent_parcels]
@@ -33,3 +32,6 @@ class Road(SpatialObject):
             f"Road {self.road_id}: type={self.road_type}, "
             f"length={self.length}, adjacent_parcels={parcel_ids}"
         )
+    
+    def __str__(self):
+        return self.road_id

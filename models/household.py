@@ -34,3 +34,6 @@ class Household:
             f"income={self.income}, tenure={self.tenure_type}, "
             f"building={building_text}"
         )
+    
+    def __str__(self):
+        return self.household_id
