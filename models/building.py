@@ -12,7 +12,7 @@ class Building(SpatialObject):
     - may contain multiple households
     """
 
-    def __init__(self, building_id, geometry, height, usage, parcel=None):
+    def __init__(self, building_id: str, geometry: dict, height: float, usage: str, parcel=None):
         super().__init__(geometry)
         self.building_id = building_id
         self.height = height
