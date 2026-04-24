@@ -31,5 +31,5 @@ class SpatialObject:
         """
         return self.distance_to(other) <= threshold
 
-    def __str__(self):
+    def __repr__(self):
         return f"SpatialObject(geometry={self.geometry})"
