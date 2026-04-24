@@ -23,8 +23,9 @@ class Road(SpatialObject):
     
     def add_adjacent_parcel(self, parcel):
         if parcel not in self.adjacent_parcels:
-            self.adjacent_parcels.append(parcel)
             parcel.add_adjacent_road(self)
+            self.adjacent_parcels.append(parcel)
+            
     
     def describe(self):
         parcel_ids = [p.parcel_id for p in self.adjacent_parcels]
