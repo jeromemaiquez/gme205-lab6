@@ -69,3 +69,4 @@ road2.add_adjacent_parcel(parcel1)
 
 print(parcel1.adjacent_roads)
 print(road1.adjacent_parcels)
+print(parcel1)
