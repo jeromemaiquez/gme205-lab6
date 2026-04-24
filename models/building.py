@@ -42,5 +42,5 @@ class Building(SpatialObject):
             f"households={len(self.households)}" 
         )
     
-    def __str__(self):
-        return self.building_id
+    def __repr__(self):
+        return f"{self.building_id}"

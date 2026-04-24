@@ -35,5 +35,5 @@ class Household:
             f"building={building_text}"
         )
     
-    def __str__(self):
-        return self.household_id
+    def __repr__(self):
+        return f"{self.household_id}"

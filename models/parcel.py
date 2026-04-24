@@ -35,5 +35,5 @@ class Parcel(SpatialObject):
             f"adjacent_roads={len(self.adjacent_roads)}"
         )
 
-    def __str__(self):
-        return self.parcel_id
+    def __repr__(self):
+        return f"{self.parcel_id}"
