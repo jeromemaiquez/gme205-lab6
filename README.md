@@ -27,3 +27,7 @@ In the terminal, ensuring that ```(.venv)``` is present in the prompt, run the f
     ```
 
 # Reflections
+Part B2. `SpatialObject`
+1. We created the base class `SpatialObject` as an abstraction of the geometric properties of its subclasses. This allows the subclasses (`Parcel`, `Road`, and `Building`) to focus more on their specific attributes and behaviors, while delegating the geometric behaviors to the base `SpatialObject` class.
+2. There is no need to rewrite `distance_to()` in every subclass because this is a method pertaining to underlying geometric properties. In our design, anything geometric is under the purview of the base `SpatialObject` class.
+3. As previously mentioned, this design "abstracts away" the geometric properties of the different subclasses into a shared base class `SpatialObject`, whose properties can be reused by each of the subclasses without needing a rewrite.
