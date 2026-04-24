@@ -1,4 +1,6 @@
 from spatial_object import SpatialObject
+from building import Building
+from road import Road
 
 class Parcel(SpatialObject):
     """
@@ -20,11 +22,11 @@ class Parcel(SpatialObject):
     def compute_area(self):
         return self.area
     
-    def add_building(self, building):
+    def add_building(self, building: Building):
         if building not in self.buildings:
             self.buildings.append(building)
     
-    def add_adjacent_road(self, road):
+    def add_adjacent_road(self, road: Road):
         if road not in self.adjacent_roads:
             self.adjacent_roads.append(road)
 

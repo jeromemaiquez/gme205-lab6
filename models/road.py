@@ -1,4 +1,5 @@
 from spatial_object import SpatialObject
+from parcel import Parcel
 
 class Road(SpatialObject):
     """
@@ -21,7 +22,7 @@ class Road(SpatialObject):
     def get_length(self):
         return self.length
     
-    def add_adjacent_parcel(self, parcel):
+    def add_adjacent_parcel(self, parcel: Parcel):
         if parcel not in self.adjacent_parcels:
             parcel.add_adjacent_road(self)
             self.adjacent_parcels.append(parcel)

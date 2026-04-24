@@ -1,3 +1,5 @@
+from building import Building
+
 class Household:
     """
     Household is a non-spatial object with the following attributes:
@@ -10,7 +12,7 @@ class Household:
     - lives in one building
     """
 
-    def __init__(self, household_id: str, num_people: int, income: float, tenure_type: str, building=None):
+    def __init__(self, household_id: str, num_people: int, income: float, tenure_type: str, building: Building = None):
         self.household_id = household_id
         self.num_people = num_people
         self.income = income
@@ -23,7 +25,7 @@ class Household:
     def calculate_total_income(self):
         return self.income
     
-    def assign_building(self, building):
+    def assign_building(self, building: Building):
         self.building = building
         self.building.add_household(self)
 
