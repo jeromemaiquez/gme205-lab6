@@ -37,7 +37,7 @@ parcel2 = Parcel(**parcel2_data)
 # print(parcel1.distance_to(parcel2))
 # print(parcel1.intersects(parcel2, threshold=0.5))
 # print(parcel1.compute_area())
-print(parcel2.describe())
+# print(parcel2.describe())
 
 # Test for Road
 
@@ -70,8 +70,8 @@ road2.add_adjacent_parcel(parcel1)
 
 # print(parcel1.adjacent_roads)
 # print(road1.adjacent_parcels)
-print(road1.get_length())
-print(road2.describe())
+# print(road1.get_length())
+# print(road2.describe())
 
 # Test for Building
 
@@ -101,7 +101,30 @@ building2 = Building(**building2_data)
 building1.assign_parcel(parcel1)
 parcel1.add_building(parcel2)
 
-print(parcel1.buildings)
-print(building1.parcel)
-print(building2.get_height())
-print(building2.describe())
+# print(parcel1.buildings)
+# print(building1.parcel)
+# print(building2.get_height())
+# print(building2.describe())
+
+# Test for Household
+
+household1_data = {
+    "household_id": "H1",
+    "num_people": 3,
+    "income": 12706.5,
+    "tenure_type": "Owned"
+}
+
+household2_data = {
+    "household_id": "H2",
+    "num_people": 2,
+    "income": 15706.5,
+    "tenure_type": "Rent"
+}
+
+household1 = Household(**household1_data)
+household2 = Household(**household2_data)
+
+print(household1.calculate_total_income())
+print(household1.assign_building(building1))
+print(household1.describe())
