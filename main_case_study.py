@@ -41,7 +41,7 @@ parcel2 = Parcel(**parcel2_data)
 # Test for Road
 
 road1_data = {
-    "road_id": "R2",
+    "road_id": "R1",
     "geometry": {
         "x": 121.07,
         "y": 12.10,
@@ -51,7 +51,7 @@ road1_data = {
 }
 
 road2_data = {
-    "road_id": "R1",
+    "road_id": "R2",
     "geometry": {
         "x": 121.08,
         "y": 12.09,
@@ -67,6 +67,37 @@ road1.add_adjacent_parcel(parcel1)
 road1.add_adjacent_parcel(parcel2)
 road2.add_adjacent_parcel(parcel1)
 
-print(parcel1.adjacent_roads)
-print(road1.adjacent_parcels)
-print(parcel1)
+# print(parcel1.adjacent_roads)
+# print(road1.adjacent_parcels)
+# print(parcel1)
+
+# Test for Building
+
+building1_data = {
+    "building_id": "B1",
+    "geometry": {
+        "x": 121.5,
+        "y": 12.03,
+    },
+    "height": 1.4,
+    "usage": "Residential"
+}
+
+building2_data = {
+    "building_id": "B2",
+    "geometry": {
+        "x": 121.6,
+        "y": 12.00,
+    },
+    "height": 2.1,
+    "usage": "Residential"
+}
+
+building1 = Building(**building1_data)
+building2 = Building(**building2_data)
+
+building1.assign_parcel(parcel1)
+parcel1.add_building(parcel2)
+
+print(parcel1.buildings)
+print(building1.parcel)
