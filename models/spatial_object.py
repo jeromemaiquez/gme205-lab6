@@ -30,3 +30,6 @@ class SpatialObject:
         or within a threshold distance if provided.
         """
         return self.distance_to(other) <= threshold
+
+    def __str__(self):
+        return f"SpatialObject(geometry={self.geometry})"
