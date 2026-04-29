@@ -23,12 +23,14 @@ class Airport(Hub):
         lon: float, 
         lat: float, 
         iata_code: str,
+        icao_code: str,
         airport_type: AirportType,
         num_runways: int = None,
         attraction: float | None = None,
     ):
         super().__init__(name, lon, lat, attraction)
         self.iata_code = iata_code
+        self.icao_code = icao_code
         self.airport_type = airport_type
         self.num_runways = num_runways
 
