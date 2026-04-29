@@ -17,7 +17,7 @@ class Hub:
         Attraction/size score of the transport hub
     """
 
-    def __init__(self, hub_name: str, lon: float, lat: float, attraction: float | None = None):
+    def __init__(self, name: str, lon: float, lat: float, attraction: float | None = None):
         if not (-180 <= lon <= 180):
             raise ValueError("Longitude must be between -180 and 180") 
         if not (-90 <= lat <= 180):
@@ -26,7 +26,7 @@ class Hub:
         self.lon = lon
         self.lat = lat
         self.geometry = Point(lon, lat)
-        self.hub_name = hub_name
+        self.name = name
         self.metrics = {}
         self.attraction = attraction
 
