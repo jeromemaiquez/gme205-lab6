@@ -27,7 +27,6 @@ class Hub:
         self.lat = lat
         self.geometry = Point(lon, lat)
         self.name = name
-        self.metrics = {}
         self.attraction = attraction
 
     def set_attraction(self, value: int | float, override: bool = False) -> None:
@@ -48,4 +47,11 @@ class Hub:
     
     def distance_to(self, other) -> float:
         raise NotImplementedError("Must be implemented by Airport or Seaport subclass")
+    
+    def __repr__(self):
+        return (
+            f"Hub name: {self.name}\n"
+            f"Hub coordinates: {self.geometry.coords}"
+            f"Hub attraction: {self.attraction}"
+        )
     
