@@ -32,8 +32,8 @@ airport2_data = {
 airport1 = Airport(**airport1_data)
 airport2 = Airport(**airport2_data)
 
-print(airport2)
-print(airport1.distance_to(airport2))
+print("\nAirport 2 details:\n---", airport2, sep="\n")
+print(f"Distance between airports 1 and 2: {airport1.distance_to(airport2)} m")
 
 # Test for Seaport
 
@@ -64,5 +64,5 @@ seaport2_data = {
 seaport1 = Seaport(**seaport1_data)
 seaport2 = Seaport(**seaport2_data)
 
-print(seaport2)
-print(seaport1.distance_to(seaport2))
+print("\nSeaport 2 details:\n---", seaport2, sep="\n")
+print(f"Distance between seaports 1 and 2: {seaport1.distance_to(seaport2)} m")
