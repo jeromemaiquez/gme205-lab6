@@ -1,6 +1,12 @@
 from hub import Hub
 from enum import Enum
+from typing import Self
 import pyvisgraph as vg
+
+class SeaportType(Enum):
+    BASE = 1
+    TERMINAL = 2
+    PRIVATE = 3
 
 class Seaport(Hub):
     """
@@ -19,6 +25,8 @@ class Seaport(Hub):
         No. of berths in the seaport, as a proxy for capacity
     """
 
+    _graph = None
+
     def __init__(
         self, 
         name: str, 
@@ -36,7 +44,31 @@ class Seaport(Hub):
         self.seaport_type = seaport_type
         self.num_berths = num_berths
 
-class SeaportType(Enum):
-    BASE = 1
-    TERMINAL = 2
-    PRIVATE = 3
+    def distance_to(self, other: Self):
+        if Seaport._graph is None:
+            raise RuntimeError("Maritime graph not initialized")
+        return Seaport.maritime_distance(self.lon, self.lat, other.lon, other.lat, Seaport._graph)
+
+    @classmethod
+    def set_graph(cls, graph):
+        cls._graph = graph
+    
+    @classmethod
+    def maritime_distance(lon1: float, lat1: float, lon2: float, lat2: float, graph: vg.VisGraph) -> float:
+        origin = vg.Point(lon1, lat1)
+        destination = vg.Point(lon2, lat2)
+        shortest = graph.shortest_path(
+            graph.closest_point(origin, graph.point_in_polygon(origin)), 
+            graph.closest_point(destination, graph.point_in_polygon(destination))
+        )
+
+        distances = [super().haversine_m(shortest[i][0], shortest[i][1], shortest[i+1][0], shortest[i+1][1]) for i in range(len(shortest) - 1)]
+        return sum(distances)
+
+    def __repr__(self):
+        return (
+            f"Seaport name: {self.name}\n"
+            f"Seaport UN/LOCODE: {self.un_locode}\t Seaport PMO: {self.pmo}\n"
+            f"Seaport coordinates: {self.geometry.coords[0]}\n"
+            f"Seaport attraction: {self.attraction}"
+        )
