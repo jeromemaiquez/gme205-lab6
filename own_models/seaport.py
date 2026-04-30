@@ -45,16 +45,27 @@ class Seaport(Hub):
         self.num_berths = num_berths
 
     def distance_to(self, other: Self):
+        """
+        Computes the maritime distance between two seaports,
+        measured as the shortest path along the PH coastal visibility graph.
+        """
         if Seaport._graph is None:
             raise RuntimeError("Maritime graph not initialized")
         return Seaport.maritime_distance(self.lon, self.lat, other.lon, other.lat, Seaport._graph)
 
     @classmethod
     def set_graph(cls, graph):
+        """
+        Initializes the visibility graph used by the class for the project.
+        """
         cls._graph = graph
     
     @staticmethod
     def maritime_distance(lon1: float, lat1: float, lon2: float, lat2: float, graph: vg.VisGraph) -> float:
+        """
+        Calculates the distance travelled from two locations along
+        a visibility graph (with island polygons as obstacles to travel).
+        """
         origin = vg.Point(lon1, lat1)
         destination = vg.Point(lon2, lat2)
 
