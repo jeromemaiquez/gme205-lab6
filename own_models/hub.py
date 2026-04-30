@@ -30,6 +30,7 @@ class Hub:
         
         self.lon = lon
         self.lat = lat
+        self.coords = (self.lat, self.lon)
         self.geometry = Point(lon, lat)
         self.name = name
         self.attraction = attraction
