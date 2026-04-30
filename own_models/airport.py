@@ -18,7 +18,9 @@ class Airport(Hub):
     Additional attributes:
     - iata_code: str
         The unique IATA code for the airport
-    - airport_class: enum
+    - icao_code: str
+        The unique ICAO code for the airport
+    - airport_type: enum
         The airport's class (international, principal I and II, community)
     - num_runways: int
         No. of runways in the airport, as a proxy for capacity
