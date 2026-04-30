@@ -89,7 +89,7 @@ folium.GeoJson(
 folium.Marker(airport1.coords, icon=folium.Icon("red")).add_to(m)
 folium.Marker(airport2.coords, icon=folium.Icon("red")).add_to(m)
 
-# Adding airport locations and route to map
+# Adding seaport locations and route to map
 folium.GeoJson(
     shapely.to_geojson(seaport_route), 
     style_function=lambda feature: {"color": "blue"}
