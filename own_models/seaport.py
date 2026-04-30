@@ -53,16 +53,26 @@ class Seaport(Hub):
     def set_graph(cls, graph):
         cls._graph = graph
     
-    @classmethod
+    @staticmethod
     def maritime_distance(lon1: float, lat1: float, lon2: float, lat2: float, graph: vg.VisGraph) -> float:
         origin = vg.Point(lon1, lat1)
         destination = vg.Point(lon2, lat2)
-        shortest = graph.shortest_path(
-            graph.closest_point(origin, graph.point_in_polygon(origin)), 
-            graph.closest_point(destination, graph.point_in_polygon(destination))
-        )
 
-        distances = [super().haversine_m(shortest[i][0], shortest[i][1], shortest[i+1][0], shortest[i+1][1]) for i in range(len(shortest) - 1)]
+        poly_o = graph.point_in_polygon(origin)
+        poly_d = graph.point_in_polygon(destination)
+
+        start = graph.closest_point(origin, poly_o) if poly_o != -1 else origin
+        end = graph.closest_point(destination, poly_d) if poly_d != -1 else destination
+
+        shortest = graph.shortest_path(start, end)
+
+        distances = [
+            Hub.haversine_m(
+                shortest[i].x, shortest[i].y, 
+                shortest[i+1].x, shortest[i+1].y
+            ) 
+            for i in range(len(shortest) - 1)
+        ]
         return sum(distances)
 
     def __repr__(self):

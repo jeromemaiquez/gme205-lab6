@@ -1,11 +1,14 @@
 import sys
 import os
+import pyvisgraph as vg
 from pathlib import Path
 
 dir_models = Path().resolve() / "own_models"
 sys.path.append(os.path.abspath(dir_models))
+fp_graph = Path().resolve() / "own_data" / "PH_SeaRouteGraph.pk1"
 
 from airport import Airport, AirportType
+from seaport import Seaport, SeaportType
 
 # Test for Airport
 airport1_data = {
@@ -31,3 +34,34 @@ airport2 = Airport(**airport2_data)
 
 print(airport2)
 print(airport1.distance_to(airport2))
+
+# Test for Seaport
+
+# Import existing VisGraph for sea routes & assign to Seaport class
+searoute_graph = vg.VisGraph()
+searoute_graph.load(fp_graph)
+Seaport.set_graph(searoute_graph)
+
+seaport1_data = {
+    "name": "Port of Manila",
+    "lon": 120.9500,
+    "lat": 14.5833,
+    "un_locode": "PHMNL",
+    "pmo": "NCR",
+    "seaport_type": SeaportType.BASE
+}
+
+seaport2_data = {
+    "name": "Port of Cagayan de Oro",
+    "lon": 124.6623,
+    "lat": 8.4939,
+    "un_locode": "PHCDO",
+    "pmo": "MO/C",
+    "seaport_type": SeaportType.BASE
+}
+
+seaport1 = Seaport(**seaport1_data)
+seaport2 = Seaport(**seaport2_data)
+
+print(seaport2)
+print(seaport1.distance_to(seaport2))
