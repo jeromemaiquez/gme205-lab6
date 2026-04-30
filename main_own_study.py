@@ -38,6 +38,7 @@ print(airport1.distance_to(airport2))
 # Test for Seaport
 
 # Import existing VisGraph for sea routes & assign to Seaport class
+# VisGraph was pre-made due to long build times (~35 minutes)
 searoute_graph = vg.VisGraph()
 searoute_graph.load(fp_graph)
 Seaport.set_graph(searoute_graph)
