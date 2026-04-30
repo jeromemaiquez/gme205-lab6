@@ -51,7 +51,7 @@ class Hub:
     def __repr__(self):
         return (
             f"Hub name: {self.name}\n"
-            f"Hub coordinates: {self.geometry.coords}"
+            f"Hub coordinates: {self.geometry.coords[0]}\n"
             f"Hub attraction: {self.attraction}"
         )
     

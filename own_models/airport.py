@@ -1,6 +1,13 @@
 from hub import Hub
 from enum import Enum
 import math
+from typing import Self
+
+class AirportType(Enum):
+    INTERNATIONAL = 1
+    PRINCIPAL_1 = 2
+    PRINCIPAL_2 = 3
+    COMMUNITY = 4
 
 class Airport(Hub):
     """
@@ -34,7 +41,7 @@ class Airport(Hub):
         self.airport_type = airport_type
         self.num_runways = num_runways
 
-    def distance_to(self, other: Airport):
+    def distance_to(self, other: Self):
         """
         Computes the great-circle distance between two Airports
         using the Haversine distance method.
@@ -63,9 +70,11 @@ class Airport(Hub):
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         return R * c
-
-class AirportType(Enum):
-    INTERNATIONAL = 1
-    PRINCIPAL_1 = 2
-    PRINCIPAL_2 = 3
-    COMMUNITY = 4
+    
+    def __repr__(self):
+        return (
+            f"Airport name: {self.name}\n"
+            f"IATA Code: {self.iata_code}\t ICAO Code: {self.icao_code}\n"
+            f"Airport coordinates: {self.geometry.coords[0]}\n"
+            f"Airport attraction: {self.attraction}"
+        )
