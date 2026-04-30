@@ -51,7 +51,18 @@ class Seaport(Hub):
         """
         if Seaport._graph is None:
             raise RuntimeError("Maritime graph not initialized")
-        return Seaport.maritime_distance(self.lon, self.lat, other.lon, other.lat, Seaport._graph)
+        shortest = Seaport.maritime_route(self.lon, self.lat, other.lon, other.lat, Seaport._graph)
+        segment_distances = [
+            Hub.haversine_m(
+                shortest[i][0], shortest[i][1], 
+                shortest[i+1][0], shortest[i+1][1]
+            ) 
+            for i in range(len(shortest) - 1)
+        ]
+        return sum(segment_distances)
+
+    def _route_coords(self, other):
+        return Seaport.maritime_route(self.lon, self.lat, other.lon, other.lat, Seaport._graph)
 
     @classmethod
     def set_graph(cls, graph):
@@ -61,10 +72,10 @@ class Seaport(Hub):
         cls._graph = graph
     
     @staticmethod
-    def maritime_distance(lon1: float, lat1: float, lon2: float, lat2: float, graph: vg.VisGraph) -> float:
+    def maritime_route(lon1: float, lat1: float, lon2: float, lat2: float, graph: vg.VisGraph) -> list:
         """
-        Calculates the distance travelled from two locations along
-        a visibility graph (with island polygons as obstacles to travel).
+        Generates a list of point coordinates along the shortest maritime route between two points
+        (i.e., along a visibility graph, with island polygons as obstacles to travel).
         """
         origin = vg.Point(lon1, lat1)
         destination = vg.Point(lon2, lat2)
@@ -77,14 +88,7 @@ class Seaport(Hub):
 
         shortest = graph.shortest_path(start, end)
 
-        distances = [
-            Hub.haversine_m(
-                shortest[i].x, shortest[i].y, 
-                shortest[i+1].x, shortest[i+1].y
-            ) 
-            for i in range(len(shortest) - 1)
-        ]
-        return sum(distances)
+        return [(point.x, point.y) for point in shortest]
 
     def __repr__(self):
         return (

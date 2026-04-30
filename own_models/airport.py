@@ -55,7 +55,6 @@ class Airport(Hub):
         Generates a list of (lon, lat) tuples representing the points
         along the shortest route between two airports.
         """
-
         lonlats = Hub._geod.npts(
             self.lon, self.lat, 
             other.lon, other.lat, 
