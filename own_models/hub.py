@@ -1,6 +1,7 @@
-from shapely import Point, Polygon
+from shapely import Point, LineString
 from pyproj import Geod
 from pathlib import Path
+from typing import Self
 import math
 
 class Hub:
@@ -51,6 +52,18 @@ class Hub:
     
     def distance_to(self, other) -> float:
         raise NotImplementedError("Must be implemented by Airport or Seaport subclass")
+    
+    def _route_coords(self, other: Self):
+        raise NotImplementedError("Must be implemented by Airport or Seaport subclass")
+
+    def route_linestring(self, other: Self):
+        """
+        Generates a LineString geometry from the shortest path
+        between two airports (great-circle arc).
+        """
+        all_points = self._route_coords(other)
+
+        return LineString(all_points)
 
     @staticmethod
     def haversine_m(lon1: float, lat1: float, lon2: float, lat2: float) -> float:

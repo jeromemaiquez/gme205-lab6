@@ -48,8 +48,22 @@ class Airport(Hub):
         Computes the great-circle distance between two Airports
         using the Haversine distance method.
         """
-        return super().haversine_m(self.lon, self.lat, other.lon, other.lat)
+        return Hub.haversine_m(self.lon, self.lat, other.lon, other.lat)
     
+    def _route_coords(self, other: Self):
+        """
+        Generates a list of (lon, lat) tuples representing the points
+        along the shortest route between two airports.
+        """
+
+        lonlats = Hub._geod.npts(
+            self.lon, self.lat, 
+            other.lon, other.lat, 
+            npts=10
+        )
+
+        return [(self.lon, self.lat)] + lonlats + [(other.lon, other.lat)]
+
     def __repr__(self):
         return (
             f"Airport name: {self.name}\n"
