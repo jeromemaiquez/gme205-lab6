@@ -26,7 +26,7 @@ In the terminal, ensuring that ```(.venv)``` is present in the prompt, run the f
     python <folder/script_name.py>
     ```
 
-# Reflections
+# Reflections - Part B
 Part B2. `SpatialObject`
 1. We created the base class `SpatialObject` as an abstraction of the geometric properties of its subclasses. This allows the subclasses (`Parcel`, `Road`, and `Building`) to focus more on their specific attributes and behaviors, while delegating the geometric behaviors to the base `SpatialObject` class.
 2. There is no need to rewrite `distance_to()` in every subclass because this is a method pertaining to underlying geometric properties. In our design, anything geometric is under the purview of the base `SpatialObject` class.
@@ -71,3 +71,28 @@ Part B4 to B7: Constructors, Methods, Inheritance, and Relationships
     - `building`: `Building`*
 
 The attributes with the asterisk (*) seem to pertain to situations where one class can only be linked to one instance of another class. A `Building` can only be located on one `Parcel`, while a `Household` can only live in one `Building`.
+
+# Reflections - Part D
+- Part B Summary
+    
+    `SpatialObject` was created as the parent class, while the following 3 classes inherited from it: `Parcel`, `Building`, and `Road`. The methods `distance_to()` and `intersects()` were implemented at the base level and shared across the child classes. As for relationships:
+    - a `Parcel` had zero or more contained `Building`s and zero or more adjacent `Road`s
+    - a `Building` had one `Parcel` it was located on and zero or more `Household`s residing there
+    - a `Road` had zero or more `Parcel`s it was adjacent to
+
+- Part C Summary
+
+    The classes in my model were the base class `Hub`, its child classes `Airport` and `Seaport`, and the analyzer class `RadiationModel` (to still be implemented). As for the `Hub` class and its children, the shared attributes are:
+    - `hub_name`
+    - `lat` and `lon` for the location
+    - `attraction` for the attraction/size score
+    
+    Meanwhile, the child classes `Airport` and `Seaport` had their unique attributes, such as `iata_code` and `icao_code` for `Airport` and `un_locode` and `pmo` for `Seaport`. The shared methods are:
+    - `distance_to()`,
+    - `_route_coords()`: a private method to return the points along the shortest route between a `Hub` and an `other`
+    - `route_linestring()`: a method returning a shapely.LineString object for the shortest route between a `Hub` and an `other`
+    - `set_attraction()`: assigns an attraction score to a `Hub` (i.e., from some external calculation, e.g., catchment-based metric)
+
+    Although not implemented yet, I anticipate challenges in coming up with `RadiationModel` and what exact relationship it will have with the `Hub` class. There may even have to be additional classes for `Catchment` (which would also have to be related to a `Hub`), but I am still not sure if this is necessary.
+
+    The fiile name of my UML JPG image is `uml/Gme205_FinalProject_UML.drawio.png`.
