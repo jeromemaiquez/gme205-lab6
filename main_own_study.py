@@ -20,8 +20,8 @@ fp_graph = WORK_DIR / "own_data" / "PH_SeaRouteGraph.pk1"
 fp_isochrones = WORK_DIR / "output" / "PH_AirportIsochrones.geoparquet"
 fp_output_map = WORK_DIR / "output" / "test_output.html"
 
-from airport import Airport, AirportType
-from seaport import Seaport, SeaportType
+from airport import Airport
+from seaport import Seaport
 from catchment import draw_isochrones
 
 # Test for Airport
@@ -31,7 +31,7 @@ from catchment import draw_isochrones
 #     "lat": 14.5123,
 #     "iata_code": "MNL",
 #     "icao_code": "RPLL",
-#     "airport_type": AirportType.INTERNATIONAL
+#     "airport_type": 1
 # }
 
 # airport2_data = {
@@ -40,7 +40,7 @@ from catchment import draw_isochrones
 #     "lat": 8.6125,
 #     "iata_code": "CGY",
 #     "icao_code": "RPMY",
-#     "airport_type": AirportType.PRINCIPAL_1
+#     "airport_type": 2
 # }
 
 # airport1 = Airport(**airport1_data)
@@ -67,7 +67,7 @@ Seaport.set_graph(searoute_graph)
 #     "lat": 14.5833,
 #     "un_locode": "PHMNL",
 #     "pmo": "NCR",
-#     "seaport_type": SeaportType.BASE
+#     "seaport_type": 1
 # }
 
 # seaport2_data = {
@@ -76,7 +76,7 @@ Seaport.set_graph(searoute_graph)
 #     "lat": 8.4939,
 #     "un_locode": "PHCDO",
 #     "pmo": "MO/C",
-#     "seaport_type": SeaportType.BASE
+#     "seaport_type": 1
 # }
 
 # seaport1 = Seaport(**seaport1_data)
@@ -103,7 +103,7 @@ for idx, row in df_airports.iterrows():
         lat=row["latitude"],
         iata_code=row["iata_code"],
         icao_code=row["icao_code"],
-        airport_type=AirportType(row["airport_class"]).name,
+        airport_type=row["airport_class"],
         outflow=row["n_passengers"]
     )
     airports.append(airport)

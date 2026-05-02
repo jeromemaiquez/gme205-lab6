@@ -20,7 +20,7 @@ class Airport(Hub):
         The unique IATA code for the airport
     - icao_code: str
         The unique ICAO code for the airport
-    - airport_type: enum
+    - airport_type: int
         The airport's class (international, principal I and II, community)
     - num_runways: int
         No. of runways in the airport, as a proxy for capacity
@@ -36,7 +36,7 @@ class Airport(Hub):
         lat: float, 
         iata_code: str,
         icao_code: str,
-        airport_type: AirportType,
+        airport_type: int,
         num_runways: int = None,
         attraction: float | None = None,
         outflow: int | None = None
@@ -44,7 +44,7 @@ class Airport(Hub):
         super().__init__(name, lon, lat, attraction, outflow)
         self.iata_code = iata_code
         self.icao_code = icao_code
-        self.airport_type = airport_type
+        self.airport_type = AirportType(airport_type).name
         self.num_runways = num_runways
 
     def distance_to(self, other: Self):

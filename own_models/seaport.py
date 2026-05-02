@@ -6,7 +6,8 @@ import pyvisgraph as vg
 class SeaportType(Enum):
     BASE = 1
     TERMINAL = 2
-    PRIVATE = 3
+    OTHER_GOVT = 3
+    PRIVATE = 4
 
 class Seaport(Hub):
     """
@@ -19,8 +20,8 @@ class Seaport(Hub):
         The unique UN/LOCODE code for the seaport
     - pmo: str
         The port management office (PMO) overseeing the seaport
-    - seaport_type: enum
-        The seaport classification (base, terminal, private)
+    - seaport_type: int
+        The seaport classification (base, terminal, other government, private)
     - num_berths: int
         No. of berths in the seaport, as a proxy for capacity
     - outflow: int
@@ -37,7 +38,7 @@ class Seaport(Hub):
         lat: float, 
         un_locode: str,
         pmo: str,
-        seaport_type: SeaportType,
+        seaport_type: int,
         num_berths: int = None,
         attraction: float | None = None,
         outflow: int | None = None
@@ -45,7 +46,7 @@ class Seaport(Hub):
         super().__init__(name, lon, lat, attraction, outflow)
         self.un_locode = un_locode
         self.pmo = pmo
-        self.seaport_type = seaport_type
+        self.seaport_type = SeaportType(seaport_type).name
         self.num_berths = num_berths
 
     def distance_to(self, other: Self):
