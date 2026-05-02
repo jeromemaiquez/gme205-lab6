@@ -24,6 +24,9 @@ class Airport(Hub):
         The airport's class (international, principal I and II, community)
     - num_runways: int
         No. of runways in the airport, as a proxy for capacity
+    - outflow: int
+        Total outflow of passengers/aircraft from the airport.
+        Used to calibrate the radiation flow model
     """
 
     def __init__(
@@ -36,8 +39,9 @@ class Airport(Hub):
         airport_type: AirportType,
         num_runways: int = None,
         attraction: float | None = None,
+        outflow: int | None = None
     ):
-        super().__init__(name, lon, lat, attraction)
+        super().__init__(name, lon, lat, attraction, outflow)
         self.iata_code = iata_code
         self.icao_code = icao_code
         self.airport_type = airport_type

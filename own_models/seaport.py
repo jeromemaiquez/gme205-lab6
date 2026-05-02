@@ -23,6 +23,9 @@ class Seaport(Hub):
         The seaport classification (base, terminal, private)
     - num_berths: int
         No. of berths in the seaport, as a proxy for capacity
+    - outflow: int
+        Total outflow of passengers/vehicles from the hub.
+        Used to calibrate the radiation flow model
     """
 
     _graph = None
@@ -37,8 +40,9 @@ class Seaport(Hub):
         seaport_type: SeaportType,
         num_berths: int = None,
         attraction: float | None = None,
+        outflow: int | None = None
     ):
-        super().__init__(name, lon, lat, attraction)
+        super().__init__(name, lon, lat, attraction, outflow)
         self.un_locode = un_locode
         self.pmo = pmo
         self.seaport_type = seaport_type

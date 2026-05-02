@@ -18,11 +18,21 @@ class Hub:
         Latitude of the transport hub
     - attraction: int/float
         Attraction/size score of the transport hub
+    - outflow: int
+        Total outflow of passengers/vehicles from the hub.
+        Used to calibrate the radiation flow model
     """
 
     _geod = Geod(ellps='WGS84')
 
-    def __init__(self, name: str, lon: float, lat: float, attraction: float | None = None):
+    def __init__(
+            self, 
+            name: str, 
+            lon: float, 
+            lat: float, 
+            attraction: float | None = None,
+            outflow: int | None = None 
+    ):
         if not (-180 <= lon <= 180):
             raise ValueError("Longitude must be between -180 and 180") 
         if not (-90 <= lat <= 180):
@@ -34,6 +44,7 @@ class Hub:
         self.geometry = Point(lon, lat)
         self.name = name
         self.attraction = attraction
+        self.outflow = outflow
 
     def set_attraction(self, value: int | float, override: bool = False) -> None:
         """
