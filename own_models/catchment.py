@@ -1,7 +1,7 @@
 import openrouteservice as ors
 from hub import Hub
-import pandas as pd
 import geopandas as gpd
+import time
 
 def draw_isochrones(
         client: ors.Client, 
@@ -45,6 +45,8 @@ def draw_isochrones(
             range=travel_range,
             attributes=attributes
         )
+
+        time.sleep(5)
     
     gdf_isochrones = gpd.GeoDataFrame.from_features(all_isochrones).set_crs("EPSG:4326")
     gdf_isochrones["hub_id"] = gdf_isochrones.index.to_series().apply(
