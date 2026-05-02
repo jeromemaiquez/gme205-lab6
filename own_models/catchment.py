@@ -1,14 +1,16 @@
 import openrouteservice as ors
 from hub import Hub
 import geopandas as gpd
+import pandas as pd
+from tqdm import tqdm
 import time
 
 def draw_isochrones(
         client: ors.Client, 
         hubs: list[Hub], 
         hub_id: str,
-        travel_range: int = 7_200,
-        get_pop: bool = True
+        travel_range: int = 3_600,
+        get_pop: bool = True,
 ) -> gpd.GeoDataFrame:
     """
     Returns a geopandas.GeoDataFrame of isochrone polygons
@@ -19,7 +21,7 @@ def draw_isochrones(
         Client object supplied with the API key
     - hubs: list[Hub]
         List of Hub objects for which to create isochrones
-    - range: int
+    - travel_range: int
         Ranges to calculate travel duration for (in seconds)
     - get_pop: bool
         If True, calculates total population inside isochrone.
@@ -27,7 +29,7 @@ def draw_isochrones(
     """
     all_isochrones = []
 
-    for i in range(0, len(hubs), step=5):
+    for i in tqdm(range(0, len(hubs), 5)):
         try:
             chunk_hubs = hubs[i:i+5]
         except IndexError:  # If len(chunk_hubs) < 5
@@ -39,16 +41,24 @@ def draw_isochrones(
         if get_pop:
             attributes = ["total_pop"]
 
-        all_isochrones += ors.isochrones.isochrones(
+        chunk_isochrones = ors.isochrones.isochrones(
             client=client,
             locations=locations,
-            range=travel_range,
+            range=[travel_range],
             attributes=attributes
         )
 
+        gdf_chunk = gpd.GeoDataFrame.from_features(chunk_isochrones)
+
+        all_isochrones.append(gdf_chunk)
+
         time.sleep(5)
+        # break
+
+    # print(chunk_isochrones)
     
-    gdf_isochrones = gpd.GeoDataFrame.from_features(all_isochrones).set_crs("EPSG:4326")
+    df_isochrones = pd.concat(all_isochrones, ignore_index=True)
+    gdf_isochrones = gpd.GeoDataFrame(data=df_isochrones, geometry=df_isochrones.geometry, crs="EPSG:4326")
     gdf_isochrones["hub_id"] = gdf_isochrones.index.to_series().apply(
        lambda idx: getattr(hubs[idx], hub_id)
     )

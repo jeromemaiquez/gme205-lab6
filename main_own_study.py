@@ -1,45 +1,56 @@
-import sys
-import os
 import pyvisgraph as vg
 import folium
 import shapely
+import geopandas as gpd
+import pandas as pd
+import openrouteservice as ors
+from dotenv import load_dotenv
+
+import sys
+import os
+import json
 from pathlib import Path
 
-dir_models = Path().resolve() / "own_models"
+WORK_DIR = Path().resolve()
+dir_models = WORK_DIR / "own_models"
 sys.path.append(os.path.abspath(dir_models))
-fp_graph = Path().resolve() / "own_data" / "PH_SeaRouteGraph.pk1"
-fp_output_map = Path().resolve() / "output" / "test_output.html"
+
+fp_airports = WORK_DIR / "own_data" / "GmE205_AirportData.csv"
+fp_graph = WORK_DIR / "own_data" / "PH_SeaRouteGraph.pk1"
+fp_isochrones = WORK_DIR / "output" / "PH_AirportIsochrones.geoparquet"
+fp_output_map = WORK_DIR / "output" / "test_output.html"
 
 from airport import Airport, AirportType
 from seaport import Seaport, SeaportType
+from catchment import draw_isochrones
 
 # Test for Airport
-airport1_data = {
-    "name": "Ninoy Aquino International Airport",
-    "lon": 121.0165,
-    "lat": 14.5123,
-    "iata_code": "MNL",
-    "icao_code": "RPLL",
-    "airport_type": AirportType.INTERNATIONAL
-}
+# airport1_data = {
+#     "name": "Ninoy Aquino International Airport",
+#     "lon": 121.0165,
+#     "lat": 14.5123,
+#     "iata_code": "MNL",
+#     "icao_code": "RPLL",
+#     "airport_type": AirportType.INTERNATIONAL
+# }
 
-airport2_data = {
-    "name": "Laguindingan Airport",
-    "lon": 124.4572,
-    "lat": 8.6125,
-    "iata_code": "CGY",
-    "icao_code": "RPMY",
-    "airport_type": AirportType.PRINCIPAL_1
-}
+# airport2_data = {
+#     "name": "Laguindingan Airport",
+#     "lon": 124.4572,
+#     "lat": 8.6125,
+#     "iata_code": "CGY",
+#     "icao_code": "RPMY",
+#     "airport_type": AirportType.PRINCIPAL_1
+# }
 
-airport1 = Airport(**airport1_data)
-airport2 = Airport(**airport2_data)
+# airport1 = Airport(**airport1_data)
+# airport2 = Airport(**airport2_data)
 
-print("\nAirport 2 details:\n---", airport2, sep="\n")
-print(f"Distance between airports 1 and 2: {airport1.distance_to(airport2)} m")
+# print("\nAirport 2 details:\n---", airport2, sep="\n")
+# print(f"Distance between airports 1 and 2: {airport1.distance_to(airport2)} m")
 # print(f"Route coordinates between airports 1 and 2: {airport1._route_coords(airport2)}")
 
-airport_route = airport1.route_linestring(airport2)
+# airport_route = airport1.route_linestring(airport2)
 # print(f"Geometry of route between airports 1 and 2: {airport_route}")
 
 # Test for Seaport
@@ -50,51 +61,87 @@ searoute_graph = vg.VisGraph()
 searoute_graph.load(fp_graph)
 Seaport.set_graph(searoute_graph)
 
-seaport1_data = {
-    "name": "Port of Manila",
-    "lon": 120.9500,
-    "lat": 14.5833,
-    "un_locode": "PHMNL",
-    "pmo": "NCR",
-    "seaport_type": SeaportType.BASE
-}
+# seaport1_data = {
+#     "name": "Port of Manila",
+#     "lon": 120.9500,
+#     "lat": 14.5833,
+#     "un_locode": "PHMNL",
+#     "pmo": "NCR",
+#     "seaport_type": SeaportType.BASE
+# }
 
-seaport2_data = {
-    "name": "Port of Cagayan de Oro",
-    "lon": 124.6623,
-    "lat": 8.4939,
-    "un_locode": "PHCDO",
-    "pmo": "MO/C",
-    "seaport_type": SeaportType.BASE
-}
+# seaport2_data = {
+#     "name": "Port of Cagayan de Oro",
+#     "lon": 124.6623,
+#     "lat": 8.4939,
+#     "un_locode": "PHCDO",
+#     "pmo": "MO/C",
+#     "seaport_type": SeaportType.BASE
+# }
 
-seaport1 = Seaport(**seaport1_data)
-seaport2 = Seaport(**seaport2_data)
+# seaport1 = Seaport(**seaport1_data)
+# seaport2 = Seaport(**seaport2_data)
 
-print("\nSeaport 2 details:\n---", seaport2, sep="\n")
-print(f"Distance between seaports 1 and 2: {seaport1.distance_to(seaport2)} m")
+# print("\nSeaport 2 details:\n---", seaport2, sep="\n")
+# print(f"Distance between seaports 1 and 2: {seaport1.distance_to(seaport2)} m")
 # print(f"Route coordinates between seaports 1 and 2: {seaport1._route_coords(seaport2)}")
 
-seaport_route = seaport1.route_linestring(seaport2)
+# seaport_route = seaport1.route_linestring(seaport2)
 # print(f"Geometry of route between seaports 1 and 2: {seaport_route}")
+
+load_dotenv()
+ORS_API_KEY = os.getenv("ORS_API_KEY")
+client = ors.Client(ORS_API_KEY)
+
+df_airports = pd.read_csv(fp_airports)
+
+airports = []
+for idx, row in df_airports.iterrows():
+    airport = Airport(
+        name=row["airport_name"],
+        lon=row["longitude"],
+        lat=row["latitude"],
+        iata_code=row["iata_code"],
+        icao_code=row["icao_code"],
+        airport_type=AirportType(row["airport_class"]).name,
+        outflow=row["n_passengers"]
+    )
+    airports.append(airport)
+
+print("Generating isochrones for list of Airport objects...")
+if not fp_isochrones.exists():
+    gdf_airport_catchments = draw_isochrones(client, airports, "iata_code")
+    gdf_airport_catchments.to_parquet(fp_isochrones)
+else:
+    print("Loading existing isochrone data...")
+    gdf_airport_catchments = gpd.read_parquet(fp_isochrones)
+
+print("Done!")
+
+# print(airports[:2])
 
 # Create map for visualization (to be moved later in a separate script)
 m = folium.Map(location=(14.6042, 120.9822), zoom_start=6)
 
-# Adding airport locations and route to map
-folium.GeoJson(
-    shapely.to_geojson(airport_route), 
-    style_function=lambda feature: {"color": "red"}
-).add_to(m)
-folium.Marker(airport1.coords, icon=folium.Icon("red")).add_to(m)
-folium.Marker(airport2.coords, icon=folium.Icon("red")).add_to(m)
+# # Adding airport locations and route to map
+# folium.GeoJson(
+#     shapely.to_geojson(airport_route), 
+#     style_function=lambda feature: {"color": "red"}
+# ).add_to(m)
+# folium.Marker(airport1.coords, icon=folium.Icon("red")).add_to(m)
+# folium.Marker(airport2.coords, icon=folium.Icon("red")).add_to(m)
 
-# Adding seaport locations and route to map
+# # Adding seaport locations and route to map
+# folium.GeoJson(
+#     shapely.to_geojson(seaport_route), 
+#     style_function=lambda feature: {"color": "blue"}
+# ).add_to(m)
+# folium.Marker(seaport1.coords, icon=folium.Icon("blue")).add_to(m)
+# folium.Marker(seaport2.coords, icon=folium.Icon("blue")).add_to(m)
+
 folium.GeoJson(
-    shapely.to_geojson(seaport_route), 
-    style_function=lambda feature: {"color": "blue"}
+    gdf_airport_catchments.to_json(),
+    style_function=lambda feature: {"color": "grey"}
 ).add_to(m)
-folium.Marker(seaport1.coords, icon=folium.Icon("blue")).add_to(m)
-folium.Marker(seaport2.coords, icon=folium.Icon("blue")).add_to(m)
 
 m.save(fp_output_map)
