@@ -16,8 +16,10 @@ dir_models = WORK_DIR / "own_models"
 sys.path.append(os.path.abspath(dir_models))
 
 fp_airports = WORK_DIR / "own_data" / "GmE205_AirportData.csv"
+fp_seaports = WORK_DIR / "own_data" / "GmE205_SeaportData.csv"
 fp_graph = WORK_DIR / "own_data" / "PH_SeaRouteGraph.pk1"
 fp_isochrones = WORK_DIR / "output" / "PH_AirportIsochrones.geoparquet"
+fp_sea_isochrones = WORK_DIR / "output" / "PH_SeaportIsochrones.geoparquet"
 fp_output_map = WORK_DIR / "output" / "test_output.html"
 
 from airport import Airport
@@ -93,28 +95,51 @@ load_dotenv()
 ORS_API_KEY = os.getenv("ORS_API_KEY")
 client = ors.Client(ORS_API_KEY)
 
-df_airports = pd.read_csv(fp_airports)
+# df_airports = pd.read_csv(fp_airports)
+df_seaports = pd.read_csv(fp_seaports)
 
-airports = []
-for idx, row in df_airports.iterrows():
-    airport = Airport(
-        name=row["airport_name"],
+# airports = []
+seaports = []
+
+# for idx, row in df_airports.iterrows():
+#     airport = Airport(
+#         name=row["airport_name"],
+#         lon=row["longitude"],
+#         lat=row["latitude"],
+#         iata_code=row["iata_code"],
+#         icao_code=row["icao_code"],
+#         airport_type=row["airport_class"],
+#         outflow=row["n_passengers"]
+#     )
+#     airports.append(airport)
+
+for idx, row in df_seaports.iterrows():
+    seaport = Seaport(
+        name=row["seaport_name"],
         lon=row["longitude"],
         lat=row["latitude"],
-        iata_code=row["iata_code"],
-        icao_code=row["icao_code"],
-        airport_type=row["airport_class"],
+        un_locode=row["un_locode"],
+        pmo=row["pmo"],
+        seaport_type=row["seaport_type"],
         outflow=row["n_passengers"]
     )
-    airports.append(airport)
+    seaports.append(seaport)
 
-print("Generating isochrones for list of Airport objects...")
-if not fp_isochrones.exists():
-    gdf_airport_catchments = draw_isochrones(client, airports, "iata_code")
-    gdf_airport_catchments.to_parquet(fp_isochrones)
+# print("Generating isochrones for list of Airport objects...")
+# if not fp_isochrones.exists():
+#     gdf_airport_catchments = draw_isochrones(client, airports, "iata_code")
+#     gdf_airport_catchments.to_parquet(fp_isochrones)
+# else:
+#     print("Loading existing isochrone data...")
+#     gdf_airport_catchments = gpd.read_parquet(fp_isochrones)
+
+print("Generating isochrones for list of Seaport objects...")
+if not fp_sea_isochrones.exists():
+    gdf_seaport_catchments = draw_isochrones(client, seaports, "un_locode")
+    gdf_seaport_catchments.to_parquet(fp_sea_isochrones)
 else:
     print("Loading existing isochrone data...")
-    gdf_airport_catchments = gpd.read_parquet(fp_isochrones)
+    gdf_seaport_catchments = gpd.read_parquet(fp_sea_isochrones)
 
 print("Done!")
 
@@ -140,7 +165,7 @@ m = folium.Map(location=(14.6042, 120.9822), zoom_start=6)
 # folium.Marker(seaport2.coords, icon=folium.Icon("blue")).add_to(m)
 
 folium.GeoJson(
-    gdf_airport_catchments.to_json(),
+    gdf_seaport_catchments.to_json(),
     style_function=lambda feature: {"color": "grey"}
 ).add_to(m)
 
