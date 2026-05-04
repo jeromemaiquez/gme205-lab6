@@ -57,8 +57,9 @@ class Hub:
         - override: bool
             If True, overrides any existing attraction score
         """
-        if (self.attraction) & (not override):
-            raise ValueError("Hub already has an attraction score. Set `override=True` if you wish to override")
+        if self.attraction:
+            if not override:
+                raise ValueError("Hub already has an attraction score. Set `override=True` if you wish to override")
         
         self.attraction = value
     

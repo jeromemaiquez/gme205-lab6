@@ -21,10 +21,12 @@ fp_graph = WORK_DIR / "own_data" / "PH_SeaRouteGraph.pk1"
 fp_isochrones = WORK_DIR / "output" / "PH_AirportIsochrones.geoparquet"
 fp_sea_isochrones = WORK_DIR / "output" / "PH_SeaportIsochrones.geoparquet"
 fp_output_map = WORK_DIR / "output" / "test_output.html"
+fp_output_flows = WORK_DIR / "output" / "PH_SeaportFlows.csv"
 
 from airport import Airport
 from seaport import Seaport
 from catchment import draw_isochrones
+from radiation import Radiation
 
 # Test for Airport
 # airport1_data = {
@@ -143,10 +145,21 @@ else:
 
 print("Done!")
 
+for seaport in seaports:
+    seaport_id = seaport.un_locode
+    attraction = gdf_seaport_catchments.loc[
+        gdf_seaport_catchments.hub_id == seaport_id, "total_pop"
+    ].values[0]
+    seaport.set_attraction(attraction)
+
+radiation_model = Radiation(seaports[:5])
+df_sea_flows = radiation_model.simulate(id_attribute="un_locode")
+df_sea_flows.to_csv(fp_output_flows)
+
 # print(airports[:2])
 
 # Create map for visualization (to be moved later in a separate script)
-m = folium.Map(location=(14.6042, 120.9822), zoom_start=6)
+# m = folium.Map(location=(14.6042, 120.9822), zoom_start=6)
 
 # # Adding airport locations and route to map
 # folium.GeoJson(
@@ -164,9 +177,9 @@ m = folium.Map(location=(14.6042, 120.9822), zoom_start=6)
 # folium.Marker(seaport1.coords, icon=folium.Icon("blue")).add_to(m)
 # folium.Marker(seaport2.coords, icon=folium.Icon("blue")).add_to(m)
 
-folium.GeoJson(
-    gdf_seaport_catchments.to_json(),
-    style_function=lambda feature: {"color": "grey"}
-).add_to(m)
+# folium.GeoJson(
+#     gdf_seaport_catchments.to_json(),
+#     style_function=lambda feature: {"color": "grey"}
+# ).add_to(m)
 
-m.save(fp_output_map)
+# m.save(fp_output_map)
