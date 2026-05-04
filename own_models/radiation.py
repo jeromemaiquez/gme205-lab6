@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+# Feedback 1: radiation model loops too slow for 100+ seaports (need way to optimize)
+# Feedback 2: test results show that Huff model may be needed to replace simple isochrones
+
 class Radiation:
     """
     The radiation model for human migration. This model assumes that the choice
