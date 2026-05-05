@@ -1,8 +1,14 @@
-import openrouteservice as ors
 from hub import Hub
+
+import openrouteservice as ors
 import geopandas as gpd
 import pandas as pd
 from tqdm import tqdm
+import rasterio as rio
+from rasterio import features
+import numpy as np
+from skimage.graph import MCP_Geometric
+
 import time
 
 def draw_isochrones(
@@ -64,3 +70,75 @@ def draw_isochrones(
     )
 
     return gdf_isochrones
+
+def draw_hinterlands(
+        cost_raster: str,
+        hubs: list[Hub],
+        id_attribute: str,
+        capacity_attribute: str = "outflow",
+        beta: float = 1.0
+):
+    """
+    Returns a geopandas.GeoDataFrame of hinterland polygons for a list 
+    of Hub objects via the multiplicatively weighted Voronoi diagram (MWVD) method.
+
+    Attributes:
+    - cost_raster: str
+        the filepath of the raster representing travel costs
+    - hubs: list[Hub]
+        the list of Hub objects for which to draw hinterlands
+    - capacity_attribute: str
+        the name of the Hub attribute representing its capacity. Default is "outflow"\
+    - beta: float
+        the value of the friction coefficient. Default is 1.0
+    """
+
+    hubs_coords = []
+    hubs_capacities = []
+
+    with rio.open(cost_raster) as src:
+        cost_grid = src.read(1)
+        profile = src.profile
+        transform = src.transform
+
+        for hub in hubs:
+            lon, lat = hub.coords
+            capacity = getattr(hub, capacity_attribute)
+            row, col = src.index(lon, lat)
+            hubs_coords.append((row, col))
+            hubs_capacities.append(capacity)
+    
+    min_weighted_cost = np.full(cost_grid.shape, np.inf)
+    service_area_map = np.full(cost_grid.shape, -1, dtype=np.int32)
+
+    mcp = MCP_Geometric(cost_grid)
+
+    for i, (coord, capacity) in enumerate(zip(hubs_coords, hubs_capacities)):
+        # 1. Compute least-cost distance from this Hub to all cells
+        # find_costs returns cumulative cost distance 'd'
+        d, _ = mcp.find_costs(starts=[coord])
+
+        # 2. Apply Huff-like weighting: Cost = (d^beta) / Capacity
+        weighted_d = (d ** beta) / capacity
+
+        # 3. Update the map where this Hub is the 'cheapest' option
+        mask = weighted_d < min_weighted_cost
+        min_weighted_cost[mask] = weighted_d[mask]
+        service_area_map[mask] = i
+    
+    excluded_areas = service_area_map != -1
+
+    results = (
+        {"properties": {"raster_val": v}, "geometry": s}
+        for i, (s, v) in enumerate(
+            features.shapes(service_area_map, mask=excluded_areas, transform=transform)
+        )
+    )
+
+    gdf_hinterlands = gpd.GeoDataFrame.from_features(list(results), crs="EPSG:4326")
+    gdf_hinterlands["hub_id"] = gdf_hinterlands.raster_val.apply(
+        lambda idx: getattr(hubs[idx], id_attribute)
+    )
+
+    return gdf_hinterlands
+
