@@ -76,7 +76,7 @@ def draw_hinterlands(
         hubs: list[Hub],
         id_attribute: str,
         capacity_attribute: str = "outflow",
-        beta: float = 1.0
+        beta: float = 2.0
 ):
     """
     Returns a geopandas.GeoDataFrame of hinterland polygons for a list 
@@ -97,12 +97,13 @@ def draw_hinterlands(
     hubs_capacities = []
 
     with rio.open(cost_raster) as src:
-        cost_grid = src.read(1)
+        cost_grid = src.read(1) * 1_000 # convert values from min/m to min/km (i.e., min/pixel)
         profile = src.profile
         transform = src.transform
 
         for hub in hubs:
-            lon, lat = hub.coords
+            print(hub.un_locode)
+            lat, lon = hub.coords
             capacity = getattr(hub, capacity_attribute)
             row, col = src.index(lon, lat)
             hubs_coords.append((row, col))
@@ -118,15 +119,19 @@ def draw_hinterlands(
         # find_costs returns cumulative cost distance 'd'
         d, _ = mcp.find_costs(starts=[coord])
 
+        # # Manual cap on travel time
+        # d_cap = np.where(d < 15, d, np.inf)
+
         # 2. Apply Huff-like weighting: Cost = (d^beta) / Capacity
-        weighted_d = (d ** beta) / capacity
+        weighted_d = (np.power(d, beta)) / np.power(capacity, 1/2)
+        weighted_d = np.where(d < 60, weighted_d, np.inf)
 
         # 3. Update the map where this Hub is the 'cheapest' option
         mask = weighted_d < min_weighted_cost
         min_weighted_cost[mask] = weighted_d[mask]
         service_area_map[mask] = i
     
-    excluded_areas = service_area_map != -1
+    excluded_areas = (service_area_map != -1) | (min_weighted_cost != np.inf)
 
     results = (
         {"properties": {"raster_val": v}, "geometry": s}
@@ -137,8 +142,10 @@ def draw_hinterlands(
 
     gdf_hinterlands = gpd.GeoDataFrame.from_features(list(results), crs="EPSG:4326")
     gdf_hinterlands["hub_id"] = gdf_hinterlands.raster_val.apply(
-        lambda idx: getattr(hubs[idx], id_attribute)
+        lambda idx: getattr(hubs[int(idx)], id_attribute)
     )
+
+    gdf_hinterlands = gdf_hinterlands.dissolve(by="hub_id")
 
     return gdf_hinterlands
 
