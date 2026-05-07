@@ -102,14 +102,14 @@ def draw_hinterlands(
         transform = src.transform
 
         for hub in hubs:
-            print(hub.un_locode)
+            # print(hub.un_locode)
             lat, lon = hub.coords
             capacity = getattr(hub, capacity_attribute)
             row, col = src.index(lon, lat)
             hubs_coords.append((row, col))
             hubs_capacities.append(capacity)
     
-    min_weighted_cost = np.full(cost_grid.shape, np.inf)
+    # min_weighted_cost = np.full(cost_grid.shape, np.inf)
     service_area_map = np.full(cost_grid.shape, -1, dtype=np.int32)
 
     mcp = MCP_Geometric(cost_grid)
@@ -123,7 +123,8 @@ def draw_hinterlands(
         # d_cap = np.where(d < 15, d, np.inf)
 
         # 2. Apply Huff-like weighting: Cost = (d^beta) / Capacity
-        weighted_d = (np.power(d, beta)) / np.power(capacity, 1/2)
+        min_weighted_cost = np.power(np.full(cost_grid.shape, 60), beta) / np.log(capacity / 60)
+        weighted_d = (np.power(d, beta)) / np.log(capacity / (d+1))
         weighted_d = np.where(d < 60, weighted_d, np.inf)
 
         # 3. Update the map where this Hub is the 'cheapest' option
@@ -131,7 +132,7 @@ def draw_hinterlands(
         min_weighted_cost[mask] = weighted_d[mask]
         service_area_map[mask] = i
     
-    excluded_areas = (service_area_map != -1) | (min_weighted_cost != np.inf)
+    excluded_areas = service_area_map != -1
 
     results = (
         {"properties": {"raster_val": v}, "geometry": s}
